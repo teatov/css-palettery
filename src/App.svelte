@@ -28,11 +28,13 @@
     lightnessAdjustment: number;
   };
 
-  let source = $state(exampleCss);
+  let source: string = $state(exampleCss);
+  let output: string = $state('');
   let ast: css.Stylesheet | undefined = $state();
   let rules: ColorRule[] = $state([]);
   let groups: ModificationGroup[] = $state([]);
   let selectedGroup: ModificationGroup | undefined = $state();
+  let copied: boolean = $state(false);
 
   function parseCss() {
     ast = css.parse(source, { silent: true });
@@ -159,13 +161,8 @@
     max: number = 1,
     min: number = 0
   ): number {
-    if (value > 0) {
-      return remap(value, 0, 1, initialValue, max);
-    }
-    if (value < 0) {
-      return remap(value, -1, 0, min, initialValue);
-    }
-
+    if (value > 0) return remap(value, 0, 1, initialValue, max);
+    if (value < 0) return remap(value, -1, 0, min, initialValue);
     return initialValue;
   }
 
@@ -197,10 +194,24 @@
     if (selectedGroup === group) {
       selectedGroup = undefined;
     }
+
     group.colorItems.forEach((colorItem) => {
       removeColorItemFromGroup(colorItem);
     });
+
     groups = groups.filter((item) => item !== group);
+  }
+
+  function produceOutput() {
+    if (!ast) return;
+    output = css.stringify(ast);
+    copied = false;
+  }
+
+  function copyOutputToClipboard() {
+    if (!output) return;
+    navigator.clipboard.writeText(output);
+    copied = true;
   }
 
   $effect(() => {
@@ -404,6 +415,32 @@
         <p>Select a group.</p>
       {:else}
         <p>Create a group.</p>
+      {/if}
+    </div>
+  {/if}
+  {#if ast}
+    <div class="space-y-4">
+      <div class="text-center">
+        <button
+          class="bg-stone-300 text-stone-800 font-semibold p-2 text-nowrap"
+          onclick={produceOutput}>Generate CSS</button
+        >
+      </div>
+      {#if output}
+        <div class="text-end">
+          <button
+            class="bg-stone-300 text-stone-800 font-semibold p-2 text-nowrap"
+            onclick={copyOutputToClipboard}
+            >{copied ? 'Copied!' : 'Copy to clipboard'}</button
+          >
+        </div>
+        <textarea
+          name="output"
+          id="output"
+          class="w-full bg-stone-800 font-mono placeholder-stone-500"
+          rows="10"
+          bind:value={output}
+        ></textarea>
       {/if}
     </div>
   {/if}
