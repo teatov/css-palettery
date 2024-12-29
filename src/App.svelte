@@ -116,6 +116,29 @@
   }
 </script>
 
+{#snippet colorList(
+  colorItems: ColorItem[],
+  functionOnClick: (colorItem: ColorItem) => void
+)}
+  <ul class="grid grid-cols-8 gap-1 text-xs">
+    {#each colorItems as colorItem}
+      <li
+        class="min-h-10 h-full {colorItem.color.hsl()[2] > 0.5 &&
+        colorItem.color.alpha() > 0.75
+          ? 'text-black'
+          : 'text-white'}"
+        style="background-color: {colorItem.declaration.value};"
+      >
+        <button
+          class="block w-full h-full text-start"
+          onclick={() => functionOnClick(colorItem)}
+          >{colorItem.property}</button
+        >
+      </li>
+    {/each}
+  </ul>
+{/snippet}
+
 <main class="container mx-auto max-w-screen-md py-16 space-y-6">
   <div class="text-center space-y-4">
     <h1 class="font-bold text-5xl">CSS Palettery</h1>
@@ -161,23 +184,7 @@
         {#if section.name}
           <div class="mb-2 text-sm">// {section.name}</div>
         {/if}
-        <ul class="grid grid-cols-8 gap-1 text-xs">
-          {#each section.colorItems as colorItem}
-            <li
-              class="min-h-10 h-full {colorItem.color.hsl()[2] > 0.5 &&
-              colorItem.color.alpha() > 0.75
-                ? 'text-black'
-                : 'text-white'}"
-              style="background-color: {colorItem.declaration.value};"
-            >
-              <button
-                class="block w-full h-full text-start"
-                onclick={() => addColorItemToGroup(colorItem)}
-                >{colorItem.property}</button
-              >
-            </li>
-          {/each}
-        </ul>
+        {@render colorList(section.colorItems, addColorItemToGroup)}
       {/each}
     {/each}
   </ul>
@@ -202,25 +209,12 @@
         >
       </div>
       {#if selectedGroup}
-        <div class="overflow-y-auto grow">
+        <div class="overflow-y-auto grow font-mono break-words">
           {#if selectedGroup.colorItems.length > 0}
-            <ul class="grid grid-cols-8 gap-1 text-xs font-mono break-words">
-              {#each selectedGroup.colorItems as colorItem}
-                <li
-                  class="min-h-10 h-full {colorItem.color.hsl()[2] > 0.5 &&
-                  colorItem.color.alpha() > 0.75
-                    ? 'text-black'
-                    : 'text-white'}"
-                  style="background-color: {colorItem.declaration.value};"
-                >
-                  <button
-                    class="block w-full h-full text-start"
-                    onclick={() => removeColorItemFromGroup(colorItem)}
-                    >{colorItem.property}</button
-                  >
-                </li>
-              {/each}
-            </ul>
+            {@render colorList(
+              selectedGroup.colorItems,
+              removeColorItemFromGroup
+            )}
           {:else}
             <p>Click on some colors to add them to this group.</p>
           {/if}
