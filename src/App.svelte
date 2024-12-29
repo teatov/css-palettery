@@ -193,6 +193,16 @@
     });
   }
 
+  function deleteGroup(group: ModificationGroup) {
+    if (selectedGroup === group) {
+      selectedGroup = undefined;
+    }
+    group.colorItems.forEach((colorItem) => {
+      removeColorItemFromGroup(colorItem);
+    });
+    groups = groups.filter((item) => item !== group);
+  }
+
   $effect(() => {
     if (selectedGroup) {
       selectedGroup.adjustHue;
@@ -341,12 +351,17 @@
       <div class="flex justify-between items-start text-nowrap">
         <ul class="flex bg-stone-800 w-full min-h-10 gap-1 overflow-x-auto">
           {#each groups as group}
-            <li>
-              <button
-                class="h-10 p-2 bg-stone-700 border-b-2 {selectedGroup === group
-                  ? 'border-stone-300'
-                  : 'border-stone-700'}"
-                onclick={() => selectGroup(group)}>{group.name}</button
+            <li
+              class="group flex h-10 bg-stone-700 border-b-2 {selectedGroup ===
+              group
+                ? 'border-stone-300'
+                : 'border-stone-700'}"
+            >
+              <button class="p-2" onclick={() => selectGroup(group)}
+                >{group.name}</button
+              >
+              <button class="p-2" onclick={() => deleteGroup(group)}
+                >&#10005;</button
               >
             </li>
           {/each}
@@ -385,6 +400,8 @@
             'Adjust lightness'
           )}
         </div>
+      {:else if groups.length > 0}
+        <p>Select a group.</p>
       {:else}
         <p>Create a group.</p>
       {/if}
