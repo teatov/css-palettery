@@ -3,10 +3,12 @@
   import chroma from 'chroma-js';
   import exampleCss from './assets/example.css?raw';
 
+  type ColorSpace = 'hex' | 'rgb' | 'hsl';
+
   type ColorItem = {
     initialColor: chroma.Color;
     color: chroma.Color;
-    isHex: boolean;
+    space: ColorSpace;
     rule: string;
     property: string;
     declaration: css.Declaration;
@@ -71,25 +73,34 @@
 
       if (declaration.type !== 'declaration' || !declaration.value) return;
 
-      let colorValue: chroma.Color;
+      let color: chroma.Color;
+      declaration.value = declaration.value.replaceAll('deg', '');
 
       try {
-        colorValue = chroma(declaration.value);
+        color = chroma(declaration.value);
       } catch {
         return;
       }
 
-      const color: ColorItem = {
-        initialColor: colorValue,
+      let space: ColorSpace = 'hsl';
+
+      if (declaration.value.startsWith('#')) {
+        space = 'hex';
+      } else if (declaration.value.startsWith('rgb')) {
+        space = 'rgb';
+      }
+
+      const colorItem: ColorItem = {
+        initialColor: color,
         color: chroma(declaration.value),
-        isHex: declaration.value.startsWith('#'),
+        space: space,
         rule: ruleName,
         property: declaration.property ?? '',
         declaration: declaration,
         group: null,
       };
 
-      colorItems.push(color);
+      colorItems.push(colorItem);
     });
 
     if (colorItems.length > 0) {
@@ -138,7 +149,14 @@
 
   function setColorItemColor(colorItem: ColorItem, color: chroma.Color) {
     colorItem.color = color;
-    colorItem.declaration.value = color.toString();
+
+    if (colorItem.space === 'hex') {
+      colorItem.declaration.value = color.hex();
+    } else if (colorItem.space === 'rgb') {
+      colorItem.declaration.value = color.css();
+    } else {
+      colorItem.declaration.value = color.css('hsl');
+    }
   }
 
   function relativeValueString(value: number): string {
