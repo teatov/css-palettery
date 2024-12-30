@@ -280,6 +280,7 @@
         style="background-color: {colorItem.declaration.value};"
       >
         <button
+          title={colorItem.property}
           class="group relative block w-full h-full text-start {showGrouping &&
           colorItem.group
             ? 'cursor-not-allowed'
