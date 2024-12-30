@@ -74,25 +74,25 @@
       if (declaration.type !== 'declaration' || !declaration.value) return;
 
       let color: chroma.Color;
-      declaration.value = declaration.value.replaceAll('deg', '');
+      const cssValue = declaration.value.replaceAll('deg', '');
 
       try {
-        color = chroma(declaration.value);
+        color = chroma(cssValue);
       } catch {
         return;
       }
 
       let space: ColorSpace = 'hsl';
 
-      if (declaration.value.startsWith('#')) {
+      if (cssValue.startsWith('#')) {
         space = 'hex';
-      } else if (declaration.value.startsWith('rgb')) {
+      } else if (cssValue.startsWith('rgb')) {
         space = 'rgb';
       }
 
       const colorItem: ColorItem = {
         initialColor: color,
-        color: chroma(declaration.value),
+        color: chroma(cssValue),
         space: space,
         rule: ruleName,
         property: declaration.property ?? '',
@@ -159,10 +159,6 @@
     }
   }
 
-  function relativeValueString(value: number): string {
-    return (value >= 0 ? '+' : '') + value.toString();
-  }
-
   function remap(
     weight: number,
     a1: number,
@@ -177,30 +173,41 @@
     initialValue: number,
     value: number,
     max: number = 1,
-    min: number = 0
+    min: number = 0,
+    scale: number = 1
   ): number {
-    if (value > 0) return remap(value, 0, 1, initialValue, max);
-    if (value < 0) return remap(value, -1, 0, min, initialValue);
+    if (value > 0) return remap(value / scale, 0, 1, initialValue, max);
+    if (value < 0) return remap(value / scale, -1, 0, min, initialValue);
     return initialValue;
   }
 
   function updateGroupColors(group: ModificationGroup) {
     group.colorItems.forEach((colorItem) => {
       let color = colorItem.initialColor;
+      const hsl = color.hsl();
 
       if (group.adjustHue) {
-        color = color.set('hsl.h', relativeValueString(group.hueAdjustment));
+        color = color.set(
+          'hsl.h',
+          adjustValue(
+            hsl[0],
+            group.hueAdjustment,
+            hsl[0] + 180,
+            hsl[0] - 180,
+            180
+          )
+        );
       }
       if (group.adjustSaturation) {
         color = color.set(
           'hsl.s',
-          adjustValue(color.hsl()[1], group.saturationAdjustment)
+          adjustValue(hsl[1], group.saturationAdjustment)
         );
       }
       if (group.adjustLightness) {
         color = color.set(
           'hsl.l',
-          adjustValue(color.hsl()[2], group.lightnessAdjustment)
+          adjustValue(hsl[2], group.lightnessAdjustment)
         );
       }
 
