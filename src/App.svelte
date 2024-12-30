@@ -2,6 +2,7 @@
   import css from 'css';
   import chroma from 'chroma-js';
   import exampleCss from './assets/example.css?raw';
+  import Button from './lib/Button.svelte';
 
   type ColorSpace = 'hex' | 'rgb' | 'hsl';
 
@@ -260,12 +261,13 @@
 {#snippet colorList(
   colorItems: ColorItem[],
   functionOnClick: (colorItem: ColorItem) => void,
+  hoverText: string,
   showGrouping: boolean = false
 )}
   <ul class="grid grid-cols-6 text-xs font-mono break-words sm:grid-cols-8">
     {#each colorItems as colorItem}
       <li
-        class="min-h-10 h-full {colorItem.color.hsl()[2] > 0.5 &&
+        class="min-h-10 h-full {colorItem.color.hsl()[2] > 0.45 &&
         colorItem.color.alpha() > 0.75
           ? 'text-black'
           : 'text-white'} border-2 {showGrouping && colorItem.group
@@ -274,12 +276,21 @@
         style="background-color: {colorItem.declaration.value};"
       >
         <button
-          class="block w-full h-full text-start {showGrouping && colorItem.group
+          class="group relative block w-full h-full text-start {showGrouping &&
+          colorItem.group
             ? 'cursor-not-allowed'
             : ''}"
           onclick={() => functionOnClick(colorItem)}
-          >{colorItem.property}</button
         >
+          {colorItem.property}
+          {#if !(showGrouping && colorItem.group)}
+            <div
+              class="absolute inset-0 text-center bg-stone-900/75 text-stone-300 font-sans invisible group-hover:visible"
+            >
+              {hoverText}
+            </div>
+          {/if}
+        </button>
       </li>
     {/each}
   </ul>
@@ -302,10 +313,7 @@
       ></textarea>
     </form>
     <div class="text-center">
-      <button
-        class="bg-stone-300 text-stone-800 font-semibold p-2 text-nowrap"
-        onclick={parseCss}>Extract colors</button
-      >
+      <Button onclick={parseCss}>Extract colors</Button>
     </div>
     {#if ast?.stylesheet?.parsingErrors && ast?.stylesheet?.parsingErrors?.length > 0}
       <div class="bg-rose-800 text-rose-200 p-4 font-mono">
@@ -332,7 +340,12 @@
         {#if section.name}
           <div class="mb-2 text-sm font-mono break-words">{section.name}</div>
         {/if}
-        {@render colorList(section.colorItems, addColorItemToGroup, true)}
+        {@render colorList(
+          section.colorItems,
+          addColorItemToGroup,
+          'Add to group',
+          true
+        )}
       {/each}
     {/each}
   </ul>
@@ -394,26 +407,26 @@
                 ? 'border-stone-300'
                 : 'border-stone-700'}"
             >
-              <button class="p-2" onclick={() => selectGroup(group)}
-                >{group.name}</button
+              <button
+                class="p-2 hover:bg-stone-600 active:bg-stone-700"
+                onclick={() => selectGroup(group)}>{group.name}</button
               >
-              <button class="p-2" onclick={() => deleteGroup(group)}
-                >&#10005;</button
+              <button
+                class="p-2 hover:bg-stone-600 active:bg-stone-700"
+                onclick={() => deleteGroup(group)}>&#10005;</button
               >
             </li>
           {/each}
         </ul>
-        <button
-          class="bg-stone-300 text-stone-800 font-semibold p-2"
-          onclick={newGroup}>New group</button
-        >
+        <Button onclick={newGroup}>New group</Button>
       </div>
       {#if selectedGroup}
         <div class="overflow-y-auto grow">
           {#if selectedGroup.colorItems.length > 0}
             {@render colorList(
               selectedGroup.colorItems,
-              removeColorItemFromGroup
+              removeColorItemFromGroup,
+              'Remove from group'
             )}
           {:else}
             <p>Click on some colors to add them to this group.</p>
@@ -443,18 +456,11 @@
   {#if ast}
     <div class="space-y-4">
       <div class="text-center">
-        <button
-          class="bg-stone-300 text-stone-800 font-semibold p-2 text-nowrap"
-          onclick={produceOutput}>Generate CSS</button
-        >
+        <Button onclick={produceOutput}>Generate CSS</Button>
       </div>
       {#if output}
         <div class="text-end">
-          <button
-            class="bg-stone-300 text-stone-800 font-semibold p-2 text-nowrap"
-            onclick={copyOutputToClipboard}
-            >{copied ? 'Copied!' : 'Copy to clipboard'}</button
-          >
+          <Button onclick={copyOutputToClipboard}>{copied ? 'Copied!' : 'Copy to clipboard'}</Button>
         </div>
         <textarea
           name="output"
@@ -472,7 +478,8 @@
     Source code is available on <a
       href="https://github.com/teatov/css-palettery"
       rel="noopener noreferrer"
-      class="text-stone-300 underline">GitHub</a
+      class="text-stone-300 underline hover:text-stone-200 active:text-stone-300"
+      >GitHub</a
     >.
   </p>
 </footer>

@@ -1,10 +1,39 @@
-:root {
-  --color-primary: hsl(204deg, 90%, 60%);
-}
+/* EXAMPLE */
 
 .colors-get-grouped-by-selectors {
   background-color: rebeccapurple;
   border-color: rgb(255 0 153);
-  /* and separated by comments */
-  color: #BADA55;
+
+  /* and separated by comments. */
+
+  color: #bada55;
+}
+
+:root {
+  /* You can add these colors to one group */
+  --color-primary: hsl(204deg, 90%, 60%);
+  --color-primary-hover: hsl(204deg, 90%, 50%);
+  --color-primary-bg: hsla(204deg, 100%, 36%, 0.6);
+  --color-primary-text: hsl(204deg, 90%, 72%);
+  --color-primary-dark-1: #14a1ff;
+  --color-primary-dark-2: #47b6ff;
+  --color-primary-dark-3: #66c2ff;
+  --color-primary-dark-4: #8fd2ff;
+  --color-primary-dark-5: #addeff;
+  --color-primary-dark-6: #c7e9ff;
+  --color-primary-dark-7: #e0f3ff;
+
+  /* and these to another. And then adjust their HSL values. */
+  --color-secondary: hsl(213, 12%, 30%);
+  --color-secondary-bg: hsl(213, 16%, 20%);
+  --color-secondary-dark-1: hsl(213, 12%, 35%);
+  --color-secondary-dark-2: hsl(213, 12%, 40%);
+  --color-secondary-dark-3: hsl(213, 12%, 50%);
+  --color-secondary-dark-4: hsl(213, 12%, 55%);
+  --color-secondary-dark-5: hsl(213, 12%, 60%);
+  --color-secondary-dark-6: #9aa3af;
+  --color-secondary-dark-7: hsl(213, 12%, 69%);
+
+  /* Then click "Generate CSS" and get your new CSS theme! */
+  --nice: mediumspringgreen;
 }
