@@ -49,6 +49,8 @@
     }
 
     rules = [];
+    groups = [];
+    selectedGroup = undefined;
 
     ast.stylesheet?.rules.forEach((rule) => {
       if (rule.type === 'rule') extractColors(rule);
