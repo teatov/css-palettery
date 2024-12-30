@@ -1,10 +1,10 @@
 /* EXAMPLE */
 
-.colors-get-grouped-by-selectors {
+.colors-get-separated-by-selectors {
   background-color: rebeccapurple;
   border-color: rgb(255 0 153);
 
-  /* and separated by comments. */
+  /* and further separated by comments. */
 
   color: #bada55;
 }
