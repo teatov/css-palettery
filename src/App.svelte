@@ -37,6 +37,7 @@
   let groups: ModificationGroup[] = $state([]);
   let selectedGroup: ModificationGroup | undefined = $state();
   let copied: boolean = $state(false);
+  let groupCounter = 0;
 
   function parseCss() {
     ast = css.parse(source, { silent: true });
@@ -115,8 +116,10 @@
   }
 
   function newGroup() {
+    groupCounter++;
+
     selectedGroup = {
-      name: 'New group',
+      name: 'New group ' + groupCounter,
       colorItems: [],
       adjustHue: false,
       hueAdjustment: 0,
