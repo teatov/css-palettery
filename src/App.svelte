@@ -120,7 +120,7 @@
     groupCounter++;
 
     selectedGroup = {
-      name: 'New group ' + groupCounter,
+      name: 'Group ' + groupCounter,
       colorItems: [],
       adjustHue: false,
       hueAdjustment: 0,
