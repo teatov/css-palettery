@@ -262,7 +262,7 @@
   functionOnClick: (colorItem: ColorItem) => void,
   showGrouping: boolean = false
 )}
-  <ul class="grid grid-cols-8 text-xs font-mono break-words">
+  <ul class="grid grid-cols-6 text-xs font-mono break-words sm:grid-cols-8">
     {#each colorItems as colorItem}
       <li
         class="min-h-10 h-full {colorItem.color.hsl()[2] > 0.5 &&
@@ -349,7 +349,7 @@
       <div class="w-full flex items-center justify-between">
         <label
           for={checkboxName}
-          class="flex items-center gap-4 w-1/2 justify-between px-4"
+          class="flex items-center gap-4 w-5/12 justify-between pr-4"
         >
           {label}
           <input
@@ -360,7 +360,7 @@
           />
         </label>
         {#if selectedGroup[checkboxName]}
-          <div class="flex items-center gap-4 w-1/2 px-4">
+          <div class="flex items-center gap-4 w-7/12">
             <input
               type="range"
               name="{valueName}Range"
@@ -378,7 +378,7 @@
               min="-{scale}"
               max={scale}
               step={scale >= 10 ? 1 : 0.01}
-              class="bg-stone-700 w-16"
+              class="bg-stone-700 w-14"
               bind:value={selectedGroup[valueName]}
             />
           </div>
@@ -423,22 +423,18 @@
             <p>Click on some colors to add them to this group.</p>
           {/if}
         </div>
-        <div class="bg-stone-800">
-          {@render modificator(
-            'adjustHue',
-            'hueAdjustment',
-            'Adjust hue',
-            360 / 2
-          )}
+        <div class="bg-stone-800 px-4">
+          <p class="font-bold text-sm">Adjust:</p>
+          {@render modificator('adjustHue', 'hueAdjustment', 'Hue', 360 / 2)}
           {@render modificator(
             'adjustSaturation',
             'saturationAdjustment',
-            'Adjust saturation'
+            'Saturation'
           )}
           {@render modificator(
             'adjustLightness',
             'lightnessAdjustment',
-            'Adjust lightness'
+            'Lightness'
           )}
         </div>
       {:else if groups.length > 0}
