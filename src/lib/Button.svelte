@@ -6,6 +6,6 @@
 
 <button
   {...rest}
-  class="bg-stone-300 text-stone-800 font-semibold p-2 text-nowrap hover:bg-stone-200 active:bg-stone-300"
+  class="bg-stone-300 text-stone-800 font-semibold p-2 text-nowrap hover:bg-stone-200 focus-visible:bg-stone-200 active:bg-stone-300"
   >{@render children?.()}</button
 >

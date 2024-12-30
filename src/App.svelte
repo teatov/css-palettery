@@ -285,7 +285,7 @@
           {colorItem.property}
           {#if !(showGrouping && colorItem.group)}
             <div
-              class="absolute inset-0 text-center bg-stone-900/75 text-stone-300 font-sans invisible group-hover:visible"
+              class="absolute inset-0 text-center bg-stone-900/75 text-stone-300 font-sans invisible group-hover:visible group-focus-visible:visible"
             >
               {hoverText}
             </div>
@@ -408,11 +408,11 @@
                 : 'border-stone-700'}"
             >
               <button
-                class="p-2 hover:bg-stone-600 active:bg-stone-700"
+                class="p-2 hover:bg-stone-600 focus-visible:bg-stone-600 active:bg-stone-700"
                 onclick={() => selectGroup(group)}>{group.name}</button
               >
               <button
-                class="p-2 hover:bg-stone-600 active:bg-stone-700"
+                class="p-2 hover:bg-stone-600 focus-visible:bg-stone-600 active:bg-stone-700"
                 onclick={() => deleteGroup(group)}>&#10005;</button
               >
             </li>
@@ -460,7 +460,9 @@
       </div>
       {#if output}
         <div class="text-end">
-          <Button onclick={copyOutputToClipboard}>{copied ? 'Copied!' : 'Copy to clipboard'}</Button>
+          <Button onclick={copyOutputToClipboard}
+            >{copied ? 'Copied!' : 'Copy to clipboard'}</Button
+          >
         </div>
         <textarea
           name="output"
@@ -478,7 +480,7 @@
     Source code is available on <a
       href="https://github.com/teatov/css-palettery"
       rel="noopener noreferrer"
-      class="text-stone-300 underline hover:text-stone-200 active:text-stone-300"
+      class="text-stone-300 underline hover:text-stone-200 focus-visible:text-stone-200 active:text-stone-300"
       >GitHub</a
     >.
   </p>
