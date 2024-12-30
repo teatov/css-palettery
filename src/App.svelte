@@ -290,9 +290,10 @@
           {colorItem.property}
           {#if !(showGrouping && colorItem.group)}
             <div
-              class="absolute inset-0 text-center bg-stone-900/75 text-stone-300 font-sans invisible group-hover:visible group-focus-visible:visible"
+              class="absolute inset-0 text-center bg-stone-900/75 text-stone-300 font-sans invisible group-hover:visible group-focus-visible:visible overflow-hidden"
             >
-              {hoverText}
+              {hoverText +
+                (selectedGroup ? selectedGroup?.name : 'a new group')}
             </div>
           {/if}
         </button>
@@ -348,7 +349,7 @@
         {@render colorList(
           section.colorItems,
           addColorItemToGroup,
-          'Add to group',
+          'Add to ',
           true
         )}
       {/each}
@@ -431,7 +432,7 @@
             {@render colorList(
               selectedGroup.colorItems,
               removeColorItemFromGroup,
-              'Remove from group'
+              'Remove from '
             )}
           {:else}
             <p>Click on some colors to add them to this group.</p>
