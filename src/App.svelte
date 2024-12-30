@@ -137,6 +137,10 @@
   }
 
   function addColorItemToGroup(colorItem: ColorItem) {
+    if (groups.length === 0 || (!selectedGroup && !colorItem.group)) {
+      newGroup();
+    }
+
     if (!selectedGroup || colorItem.group) return;
 
     colorItem.group = selectedGroup;
