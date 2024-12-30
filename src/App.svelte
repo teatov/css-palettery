@@ -330,9 +330,7 @@
       </div>
       {#each rule.sections as section}
         {#if section.name}
-          <div class="mb-2 text-sm font-mono break-words">
-            // {section.name}
-          </div>
+          <div class="mb-2 text-sm font-mono break-words">{section.name}</div>
         {/if}
         {@render colorList(section.colorItems, addColorItemToGroup, true)}
       {/each}
@@ -350,9 +348,7 @@
         <label
           for={checkboxName}
           class="flex items-center gap-4 w-5/12 justify-between pr-4"
-        >
-          {label}
-          <input
+          >{label}<input
             type="checkbox"
             name={checkboxName}
             id={checkboxName}
@@ -471,3 +467,12 @@
     </div>
   {/if}
 </main>
+<footer class="pb-16">
+  <p class="text-center text-stone-400">
+    Source code is available on <a
+      href="https://github.com/teatov/css-palettery"
+      rel="noopener noreferrer"
+      class="text-stone-300 underline">GitHub</a
+    >.
+  </p>
+</footer>
