@@ -440,10 +440,11 @@
         <Button onclick={produceOutput}>Generate CSS</Button>
       </div>
       {#if output}
-        <div class="text-end">
-          <Button onclick={copyOutputToClipboard}
-            >{copied ? 'Copied!' : 'Copy to clipboard'}</Button
-          >
+        <div class="text-end space-x-2">
+          {#if copied}
+            <span>Copied!</span>
+          {/if}
+          <Button onclick={copyOutputToClipboard}>Copy to clipboard</Button>
         </div>
         <Textarea name="output" id="output" rows={10} bind:value={output} />
       {/if}
