@@ -285,16 +285,14 @@
     <p class="text-stone-400">A tool for changing CSS colors in bulk.</p>
   </div>
   <div class="space-y-4">
-    <form action="/">
-      <textarea
-        name="source"
-        id="source"
-        class="w-full bg-stone-800 font-mono placeholder-stone-500"
-        placeholder="Paste CSS code here..."
-        rows="10"
-        bind:value={source}
-      ></textarea>
-    </form>
+    <textarea
+      name="source"
+      id="source"
+      class="w-full bg-stone-800 font-mono placeholder-stone-500"
+      placeholder="Paste CSS code here..."
+      rows="10"
+      bind:value={source}
+    ></textarea>
     <div class="text-center">
       <Button onclick={parseCss}>Extract colors</Button>
     </div>
