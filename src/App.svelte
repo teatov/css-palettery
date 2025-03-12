@@ -1,16 +1,114 @@
 <script lang="ts">
   import css from 'css';
   import chroma from 'chroma-js';
-  import exampleCss from './assets/colorspaces.css?raw';
-  // import exampleCss from './assets/example.css?raw';
+  import { input } from 'chroma-js';
+  import exampleCss from './assets/example.css?raw';
   import Button from './lib/Button.svelte';
 
-  type ColorSpace = 'hex' | 'rgb' | 'hsl';
+  const INT_OR_PCT = /((?:-?\d+)|(?:-?\d+(?:\.\d+)?)%|none)/.source;
+  const FLOAT_OR_PCT = /((?:-?(?:\d+(?:\.\d*)?|\.\d+)%?)|none)/.source;
+  const PCT = /((?:-?(?:\d+(?:\.\d*)?|\.\d+)%)|none)/.source;
+  const RE_S = /\s*/.source;
+  const SEP = /\s+/.source;
+  const COMMA = /\s*,\s*/.source;
+  const ANLGE = /((?:-?(?:\d+(?:\.\d*)?|\.\d+)(?:deg)?)|none)/.source;
+  const ALPHA = /\s*(?:\/\s*((?:[01]|[01]?\.\d+)|\d+(?:\.\d+)?%))?/.source;
+
+  const RE_RGB = new RegExp(
+    '^rgba?\\(' +
+      RE_S +
+      [INT_OR_PCT, INT_OR_PCT, INT_OR_PCT].join(SEP) +
+      ALPHA +
+      '\\)$'
+  );
+  const RE_RGB_LEGACY = new RegExp(
+    '^rgb\\(' +
+      RE_S +
+      [INT_OR_PCT, INT_OR_PCT, INT_OR_PCT].join(COMMA) +
+      RE_S +
+      '\\)$'
+  );
+  const RE_RGBA_LEGACY = new RegExp(
+    '^rgba\\(' +
+      RE_S +
+      [INT_OR_PCT, INT_OR_PCT, INT_OR_PCT, FLOAT_OR_PCT].join(COMMA) +
+      RE_S +
+      '\\)$'
+  );
+
+  const RE_HSL = new RegExp(
+    '^hsla?\\(' + RE_S + [ANLGE, PCT, PCT].join(SEP) + ALPHA + '\\)$'
+  );
+  const RE_HSL_LEGACY = new RegExp(
+    '^hsl?\\(' + RE_S + [ANLGE, PCT, PCT].join(COMMA) + RE_S + '\\)$'
+  );
+  const RE_HSLA_LEGACY =
+    /^hsla\(\s*(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)%\s*,\s*(-?\d+(?:\.\d+)?)%\s*,\s*([01]|[01]?\.\d+)\)$/;
+
+  const RE_LAB = new RegExp(
+    '^lab\\(' +
+      RE_S +
+      [FLOAT_OR_PCT, FLOAT_OR_PCT, FLOAT_OR_PCT].join(SEP) +
+      ALPHA +
+      '\\)$'
+  );
+  const RE_LCH = new RegExp(
+    '^lch\\(' +
+      RE_S +
+      [FLOAT_OR_PCT, FLOAT_OR_PCT, ANLGE].join(SEP) +
+      ALPHA +
+      '\\)$'
+  );
+  const RE_OKLAB = new RegExp(
+    '^oklab\\(' +
+      RE_S +
+      [FLOAT_OR_PCT, FLOAT_OR_PCT, FLOAT_OR_PCT].join(SEP) +
+      ALPHA +
+      '\\)$'
+  );
+  const RE_OKLCH = new RegExp(
+    '^oklch\\(' +
+      RE_S +
+      [FLOAT_OR_PCT, FLOAT_OR_PCT, ANLGE].join(SEP) +
+      ALPHA +
+      '\\)$'
+  );
+
+  const COLOR_MODES = [
+    'cmyk',
+    'css',
+    'css',
+    'hcg',
+    'hcl',
+    'hex',
+    'hsi',
+    'hsl',
+    'hsv',
+    'lab',
+    'lch',
+    'named',
+    'num',
+    'oklab',
+    'oklch',
+    'rgb',
+  ] as const;
+
+  const CONVERTIBLE_COLOR_MODES: ColorMode[] = [
+    'rgb',
+    'hsl',
+    'lab',
+    'lch',
+    'oklab',
+    'oklch',
+  ];
+
+  type ColorMode = (typeof COLOR_MODES)[number];
 
   type ColorItem = {
     initialColor: chroma.Color;
+    initialValue: string;
     color: chroma.Color;
-    space: ColorSpace;
+    mode: ColorMode;
     rule: string;
     property: string;
     declaration: css.Declaration;
@@ -79,26 +177,51 @@
       if (declaration.type !== 'declaration' || !declaration.value) return;
 
       let color: chroma.Color;
-      const cssValue = declaration.value.replaceAll('deg', '');
+      const value = declaration.value;
 
       try {
-        color = chroma(cssValue);
+        color = chroma(value);
       } catch {
         return;
       }
 
-      let space: ColorSpace = 'hsl';
+      let mode: ColorMode = 'hsl';
 
-      if (cssValue.startsWith('#')) {
-        space = 'hex';
-      } else if (cssValue.startsWith('rgb')) {
-        space = 'rgb';
+      for (let chk of input.autodetect) {
+        mode = chk.test(value) as ColorMode;
+        if (mode) break;
+      }
+      if (mode === 'css') {
+        if (
+          RE_RGB.test(value) ||
+          RE_RGB_LEGACY.test(value) ||
+          RE_RGBA_LEGACY.test(value)
+        ) {
+          mode = 'rgb';
+        } else if (
+          RE_HSL.test(value) ||
+          RE_HSL_LEGACY.test(value) ||
+          RE_HSLA_LEGACY.test(value)
+        ) {
+          mode = 'hsl';
+        } else if (RE_LAB.test(value)) {
+          mode = 'lab';
+        } else if (RE_LCH.test(value)) {
+          mode = 'lch';
+        } else if (RE_OKLAB.test(value)) {
+          mode = 'oklab';
+        } else if (RE_OKLCH.test(value)) {
+          mode = 'oklch';
+        } else {
+          mode = 'hsl';
+        }
       }
 
       const colorItem: ColorItem = {
         initialColor: color,
-        color: chroma(cssValue),
-        space: space,
+        initialValue: value,
+        color: chroma(value),
+        mode: mode,
         rule: ruleName,
         property: declaration.property ?? '',
         declaration: declaration,
@@ -155,16 +278,17 @@
       (item) => item !== colorItem
     );
     colorItem.group = null;
-    setColorItemColor(colorItem, colorItem.initialColor);
+    colorItem.color = colorItem.initialColor;
+    colorItem.declaration.value = colorItem.initialValue;
   }
 
   function setColorItemColor(colorItem: ColorItem, color: chroma.Color) {
     colorItem.color = color;
 
-    if (colorItem.space === 'hex') {
+    if (colorItem.mode === 'hex') {
       colorItem.declaration.value = color.hex();
-    } else if (colorItem.space === 'rgb') {
-      colorItem.declaration.value = color.css();
+    } else if (CONVERTIBLE_COLOR_MODES.includes(colorItem.mode)) {
+      colorItem.declaration.value = color.css(colorItem.mode as any);
     } else {
       colorItem.declaration.value = color.css('hsl');
     }
