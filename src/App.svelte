@@ -3,6 +3,7 @@
   import chroma from 'chroma-js';
   import exampleCss from './assets/example.css?raw';
   import Button from './lib/Button.svelte';
+  import Textarea from './lib/Textarea.svelte';
   import getColorMode from './lib/getColorMode';
 
   const CONVERTIBLE_COLOR_MODES: ColorMode[] = [
@@ -285,14 +286,13 @@
     <p class="text-stone-400">A tool for changing CSS colors in bulk.</p>
   </div>
   <div class="space-y-4">
-    <textarea
+    <Textarea
       name="source"
       id="source"
-      class="w-full bg-stone-800 font-mono placeholder-stone-500"
       placeholder="Paste CSS code here..."
-      rows="10"
+      rows={10}
       bind:value={source}
-    ></textarea>
+    ></Textarea>
     <div class="text-center">
       <Button onclick={parseCss}>Extract colors</Button>
     </div>
@@ -445,13 +445,8 @@
             >{copied ? 'Copied!' : 'Copy to clipboard'}</Button
           >
         </div>
-        <textarea
-          name="output"
-          id="output"
-          class="w-full bg-stone-800 font-mono placeholder-stone-500"
-          rows="10"
-          bind:value={output}
-        ></textarea>
+        <Textarea name="output" id="output" rows={10} bind:value={output}
+        ></Textarea>
       {/if}
     </div>
   {/if}
