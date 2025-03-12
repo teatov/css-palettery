@@ -7,6 +7,7 @@
   /* and further separated by comments. */
 
   color: #bada55;
+  outline-color: aliceblue;
 }
 
 :root {
@@ -24,15 +25,15 @@
   --color-primary-dark-7: #e0f3ff;
 
   /* and these to another. And then adjust their HSL values. */
-  --color-secondary: hsl(213, 12%, 30%);
-  --color-secondary-bg: hsl(213, 16%, 20%);
-  --color-secondary-dark-1: hsl(213, 12%, 35%);
-  --color-secondary-dark-2: hsl(213, 12%, 40%);
-  --color-secondary-dark-3: hsl(213, 12%, 50%);
-  --color-secondary-dark-4: hsl(213, 12%, 55%);
-  --color-secondary-dark-5: hsl(213, 12%, 60%);
-  --color-secondary-dark-6: #9aa3af;
-  --color-secondary-dark-7: hsl(213, 12%, 69%);
+  --color-secondary: oklch(41.14% 0.02 253.5);
+  --color-secondary-bg: oklch(31.46% 0.0191 253.56);
+  --color-secondary-dark-1: oklch(45.7% 0.0228 253.51);
+  --color-secondary-dark-2: oklch(50.15% 0.0254 253.51);
+  --color-secondary-dark-3: oklch(58.76% 0.0306 253.52);
+  --color-secondary-dark-4: oklch(63.14% 0.027 253.47);
+  --color-secondary-dark-5: oklch(67.45% 0.0236 253.43);
+  --color-secondary-dark-6: oklch(71.21% 0.0203 255.57);
+  --color-secondary-dark-7: oklch(75.05% 0.0178 253.37);
 
   /* Then click "Generate CSS" and get your new CSS theme! */
   --nice: mediumspringgreen;
