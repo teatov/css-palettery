@@ -292,7 +292,7 @@
       placeholder="Paste CSS code here..."
       rows={10}
       bind:value={source}
-    ></Textarea>
+    />
     <div class="text-center">
       <Button onclick={parseCss}>Extract colors</Button>
     </div>
@@ -445,8 +445,7 @@
             >{copied ? 'Copied!' : 'Copy to clipboard'}</Button
           >
         </div>
-        <Textarea name="output" id="output" rows={10} bind:value={output}
-        ></Textarea>
+        <Textarea name="output" id="output" rows={10} bind:value={output} />
       {/if}
     </div>
   {/if}
