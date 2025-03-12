@@ -338,7 +338,7 @@
   <ul class="max-h-[45vh] overflow-y-auto space-y-6">
     {#each rules as rule}
       <div
-        class="mb-2 font-semibold sticky top-0 bg-stone-800 font-mono break-words"
+        class="mb-2 font-semibold sticky top-0 bg-stone-800 font-mono break-words z-10"
       >
         {rule.name}
       </div>
