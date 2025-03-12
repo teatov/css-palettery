@@ -1,7 +1,8 @@
 <script lang="ts">
   import css from 'css';
   import chroma from 'chroma-js';
-  import exampleCss from './assets/example.css?raw';
+  import exampleCss from './assets/colorspaces.css?raw';
+  // import exampleCss from './assets/example.css?raw';
   import Button from './lib/Button.svelte';
 
   type ColorSpace = 'hex' | 'rgb' | 'hsl';
