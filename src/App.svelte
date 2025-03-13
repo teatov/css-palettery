@@ -258,7 +258,7 @@
         style="background-color: {colorItem.declaration.value};"
       >
         <button
-          title={`${colorItem.property} - ${colorItem.declaration.value}`}
+          title={`${colorItem.property}: ${colorItem.declaration.value}`}
           class="group relative block w-full h-full text-start {showGrouping &&
           colorItem.group
             ? 'cursor-not-allowed'
