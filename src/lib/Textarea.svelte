@@ -7,11 +7,10 @@
   let lineNumbersDiv: HTMLDivElement;
 
   $effect(() => {
-    if (!textarea) {
-      return;
-    }
-
     const ro = new ResizeObserver(() => {
+      if (!textarea) {
+        return;
+      }
       const rect = textarea.getBoundingClientRect();
       lineNumbersDiv.style.height = `${rect.height}px`;
       displayLineNumbers();
@@ -20,10 +19,6 @@
   });
 
   const displayLineNumbers = () => {
-    if (!textarea) {
-      return;
-    }
-
     lineNumbersDiv.innerHTML = Array.from(
       {
         length: textarea.value.split('\n').length,
