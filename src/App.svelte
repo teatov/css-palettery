@@ -15,6 +15,29 @@
     'oklch',
   ];
 
+  const HSL_ADJUSTMENTS: Adjustment = {
+    label: 'HSL',
+    getChannelValues: (color) => color.hsl(),
+    channels: [
+      {
+        label: 'Hue',
+        channel: 'hsl.h',
+        channelIndex: 0,
+        scale: 180,
+      },
+      {
+        label: 'Saturation',
+        channel: 'hsl.s',
+        channelIndex: 1,
+      },
+      {
+        label: 'Lightness',
+        channel: 'hsl.l',
+        channelIndex: 2,
+      },
+    ],
+  };
+
   let source: string = $state(exampleCss);
   let output: string = $state('');
   let ast: css.Stylesheet | undefined = $state();
@@ -99,12 +122,12 @@
     selectedGroup = {
       name: 'Group ' + groupCounter,
       colorItems: [],
-      adjustHue: false,
-      hueAdjustment: 0,
-      adjustSaturation: false,
-      saturationAdjustment: 0,
-      adjustLightness: false,
-      lightnessAdjustment: 0,
+      adjustments: Array.from(
+        {
+          length: HSL_ADJUSTMENTS.channels.length,
+        },
+        () => ({ value: 0, enabled: false })
+      ),
     };
     groups.push(selectedGroup);
   }
@@ -169,34 +192,34 @@
     return initialValue;
   }
 
-  function updateGroupColors(group: AdjustmentGroup) {
+  function adjustGroupColors(group: AdjustmentGroup) {
     group.colorItems.forEach((colorItem) => {
       let color = colorItem.initialColor;
-      const hsl = color.hsl();
+      const channelValues = HSL_ADJUSTMENTS.getChannelValues(color);
 
-      if (group.adjustHue) {
+      let index = 0;
+      for (const key in group.adjustments) {
+        const adjustment = group.adjustments[key];
+        if (!adjustment.enabled) {
+          continue;
+        }
+
+        const adjustmentChannel = HSL_ADJUSTMENTS.channels[index];
+        const channelValue = channelValues[adjustmentChannel.channelIndex];
+        const scale = adjustmentChannel.scale ?? 1;
+
         color = color.set(
-          'hsl.h',
+          adjustmentChannel.channel,
           adjustValue(
-            hsl[0],
-            group.hueAdjustment,
-            hsl[0] + 180,
-            hsl[0] - 180,
-            180
+            channelValue,
+            adjustment.value,
+            channelValue + scale,
+            channelValue - scale,
+            scale
           )
         );
-      }
-      if (group.adjustSaturation) {
-        color = color.set(
-          'hsl.s',
-          adjustValue(hsl[1], group.saturationAdjustment)
-        );
-      }
-      if (group.adjustLightness) {
-        color = color.set(
-          'hsl.l',
-          adjustValue(hsl[2], group.lightnessAdjustment)
-        );
+
+        index++;
       }
 
       setColorItemColor(colorItem, color);
@@ -229,13 +252,7 @@
 
   $effect(() => {
     if (selectedGroup) {
-      selectedGroup.adjustHue;
-      selectedGroup.hueAdjustment;
-      selectedGroup.adjustSaturation;
-      selectedGroup.saturationAdjustment;
-      selectedGroup.adjustLightness;
-      selectedGroup.lightnessAdjustment;
-      updateGroupColors(selectedGroup);
+      adjustGroupColors(selectedGroup);
     }
   });
 </script>
@@ -335,45 +352,37 @@
     {/each}
   </ul>
 
-  {#snippet adjuster(
-    checkboxName: keyof AdjustmentGroup,
-    valueName: keyof AdjustmentGroup,
-    label: string,
-    scale: number = 1
-  )}
+  {#snippet adjuster(channel: AdjustmentChannel, index: number)}
     {#if selectedGroup}
       <div class="w-full flex items-center justify-between">
         <label
-          for={checkboxName}
+          for={channel.channel}
           class="flex items-center gap-4 w-5/12 justify-between pr-4"
-          >{label}<input
+          >{channel.label}<input
             type="checkbox"
-            name={checkboxName}
-            id={checkboxName}
-            bind:checked={selectedGroup[checkboxName] as boolean}
+            name={channel.channel}
+            id={channel.channel}
+            bind:checked={selectedGroup.adjustments[index].enabled}
           />
         </label>
-        {#if selectedGroup[checkboxName]}
+        {#if selectedGroup.adjustments[index].enabled}
+          {@const scale = channel.scale ?? 1}
           <div class="flex items-center gap-4 w-7/12">
             <input
               type="range"
-              name="{valueName}Range"
-              id="{valueName}Range"
               min="-{scale}"
               max={scale}
               step={scale >= 10 ? 1 : 0.01}
               class="w-full"
-              bind:value={selectedGroup[valueName]}
+              bind:value={selectedGroup.adjustments[index].value}
             />
             <input
               type="number"
-              name="{valueName}Number"
-              id="{valueName}Number"
               min="-{scale}"
               max={scale}
               step={scale >= 10 ? 1 : 0.01}
               class="bg-stone-700 w-14"
-              bind:value={selectedGroup[valueName]}
+              bind:value={selectedGroup.adjustments[index].value}
             />
           </div>
         {/if}
@@ -419,17 +428,9 @@
         </div>
         <div class="bg-stone-800 px-4">
           <p class="font-bold text-sm">Adjust:</p>
-          {@render adjuster('adjustHue', 'hueAdjustment', 'Hue', 360 / 2)}
-          {@render adjuster(
-            'adjustSaturation',
-            'saturationAdjustment',
-            'Saturation'
-          )}
-          {@render adjuster(
-            'adjustLightness',
-            'lightnessAdjustment',
-            'Lightness'
-          )}
+          {#each HSL_ADJUSTMENTS.channels as channel, index}
+            {@render adjuster(channel, index)}
+          {/each}
         </div>
       {:else if groups.length > 0}
         <p>Select a group.</p>

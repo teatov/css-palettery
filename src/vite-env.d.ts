@@ -53,10 +53,18 @@ type ColorRule = { name: string; sections: ColorSection[] };
 type AdjustmentGroup = {
   name: string;
   colorItems: ColorItem[];
-  adjustHue: boolean;
-  hueAdjustment: number;
-  adjustSaturation: boolean;
-  saturationAdjustment: number;
-  adjustLightness: boolean;
-  lightnessAdjustment: number;
+  adjustments: { value: number; enabled: bool }[];
+};
+
+type AdjustmentChannel = {
+  label: string;
+  channel: string;
+  channelIndex: number;
+  scale?: number;
+};
+
+type Adjustment = {
+  label: string;
+  getChannelValues(color: chroma.Color): number[];
+  channels: AdjustmentChannel[];
 };
