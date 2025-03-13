@@ -43,17 +43,18 @@ type ColorItem = {
   rule: string;
   property: string;
   declaration: css.Declaration;
-  group: AdjustmentGroup | null;
+  group: ColorGroup | null;
 };
 
 type ColorSection = { name: string | null; colorItems: ColorItem[] };
 
 type ColorRule = { name: string; sections: ColorSection[] };
 
-type AdjustmentGroup = {
+type ColorGroup = {
   name: string;
   colorItems: ColorItem[];
-  adjustments: { value: number; enabled: bool }[];
+  adjustmentIndex: number;
+  adjustmentValues: { value: number; enabled: bool }[];
 };
 
 type AdjustmentChannel = {
@@ -61,9 +62,11 @@ type AdjustmentChannel = {
   channel: string;
   channelIndex: number;
   scale?: number;
+  min?: number;
+  max?: number;
 };
 
-type Adjustment = {
+type AdjustmentMode = {
   label: string;
   getChannelValues(color: chroma.Color): number[];
   channels: AdjustmentChannel[];

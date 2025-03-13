@@ -5,6 +5,7 @@
   import Button from './lib/Button.svelte';
   import Textarea from './lib/Textarea.svelte';
   import getColorMode from './lib/getColorMode';
+  import ADJUSTMENT_MODES from './lib/adjustmentModes';
 
   const CONVERTIBLE_COLOR_MODES: ColorMode[] = [
     'rgb',
@@ -15,35 +16,12 @@
     'oklch',
   ];
 
-  const HSL_ADJUSTMENTS: Adjustment = {
-    label: 'HSL',
-    getChannelValues: (color) => color.hsl(),
-    channels: [
-      {
-        label: 'Hue',
-        channel: 'hsl.h',
-        channelIndex: 0,
-        scale: 180,
-      },
-      {
-        label: 'Saturation',
-        channel: 'hsl.s',
-        channelIndex: 1,
-      },
-      {
-        label: 'Lightness',
-        channel: 'hsl.l',
-        channelIndex: 2,
-      },
-    ],
-  };
-
   let source: string = $state(exampleCss);
   let output: string = $state('');
   let ast: css.Stylesheet | undefined = $state();
   let rules: ColorRule[] = $state([]);
-  let groups: AdjustmentGroup[] = $state([]);
-  let selectedGroup: AdjustmentGroup | undefined = $state();
+  let groups: ColorGroup[] = $state([]);
+  let selectedGroup: ColorGroup | undefined = $state();
   let copied: boolean = $state(false);
   let groupCounter = 0;
 
@@ -118,21 +96,21 @@
 
   function newGroup() {
     groupCounter++;
+    const adjustmentIndex = 0;
 
     selectedGroup = {
       name: 'Group ' + groupCounter,
       colorItems: [],
-      adjustments: Array.from(
-        {
-          length: HSL_ADJUSTMENTS.channels.length,
-        },
-        () => ({ value: 0, enabled: false })
-      ),
+      adjustmentIndex,
+      adjustmentValues: Array.from({ length: 4 }, () => ({
+        value: 0,
+        enabled: false,
+      })),
     };
     groups.push(selectedGroup);
   }
 
-  function selectGroup(group: AdjustmentGroup) {
+  function selectGroup(group: ColorGroup) {
     selectedGroup = group;
   }
 
@@ -183,8 +161,8 @@
   function adjustValue(
     initialValue: number,
     value: number,
-    max: number = 1,
     min: number = 0,
+    max: number = 1,
     scale: number = 1
   ): number {
     if (value > 0) return remap(value / scale, 0, 1, initialValue, max);
@@ -192,41 +170,39 @@
     return initialValue;
   }
 
-  function adjustGroupColors(group: AdjustmentGroup) {
+  function adjustGroupColors(group: ColorGroup) {
     group.colorItems.forEach((colorItem) => {
       let color = colorItem.initialColor;
-      const channelValues = HSL_ADJUSTMENTS.getChannelValues(color);
+      const adjustmentMode = ADJUSTMENT_MODES[group.adjustmentIndex];
+      const channelValues = adjustmentMode.getChannelValues(color);
 
-      let index = 0;
-      for (const key in group.adjustments) {
-        const adjustment = group.adjustments[key];
-        if (!adjustment.enabled) {
+      for (const index in adjustmentMode.channels) {
+        const adjustmentValue = group.adjustmentValues[index];
+        if (!adjustmentValue.enabled) {
           continue;
         }
 
-        const adjustmentChannel = HSL_ADJUSTMENTS.channels[index];
-        const channelValue = channelValues[adjustmentChannel.channelIndex];
-        const scale = adjustmentChannel.scale ?? 1;
+        const channel = ADJUSTMENT_MODES[group.adjustmentIndex].channels[index];
+        const channelValue = channelValues[channel.channelIndex];
+        const scale = channel.scale ?? 1;
 
         color = color.set(
-          adjustmentChannel.channel,
+          channel.channel,
           adjustValue(
             channelValue,
-            adjustment.value,
-            channelValue + scale,
-            channelValue - scale,
-            scale
+            adjustmentValue.value,
+            channel.min ?? channelValue - scale,
+            channel.max ?? channelValue + scale,
+            channel.scale
           )
         );
-
-        index++;
       }
 
       setColorItemColor(colorItem, color);
     });
   }
 
-  function deleteGroup(group: AdjustmentGroup) {
+  function deleteGroup(group: ColorGroup) {
     if (selectedGroup === group) {
       selectedGroup = undefined;
     }
@@ -354,35 +330,36 @@
 
   {#snippet adjuster(channel: AdjustmentChannel, index: number)}
     {#if selectedGroup}
+      {@const adjustmentValue = selectedGroup.adjustmentValues[index]}
       <div class="w-full flex items-center justify-between">
         <label
           for={channel.channel}
           class="flex items-center gap-4 w-5/12 justify-between pr-4"
-          >{channel.label}<input
+        >
+          {channel.label}<input
             type="checkbox"
-            name={channel.channel}
             id={channel.channel}
-            bind:checked={selectedGroup.adjustments[index].enabled}
+            bind:checked={adjustmentValue.enabled}
           />
         </label>
-        {#if selectedGroup.adjustments[index].enabled}
+        {#if adjustmentValue.enabled}
           {@const scale = channel.scale ?? 1}
           <div class="flex items-center gap-4 w-7/12">
             <input
               type="range"
-              min="-{scale}"
-              max={scale}
+              min={channel.min ?? -scale}
+              max={channel.max ?? scale}
               step={scale >= 10 ? 1 : 0.01}
               class="w-full"
-              bind:value={selectedGroup.adjustments[index].value}
+              bind:value={adjustmentValue.value}
             />
             <input
               type="number"
-              min="-{scale}"
-              max={scale}
+              min={channel.min ?? -scale}
+              max={channel.max ?? scale}
               step={scale >= 10 ? 1 : 0.01}
               class="bg-stone-700 w-14"
-              bind:value={selectedGroup.adjustments[index].value}
+              bind:value={adjustmentValue.value}
             />
           </div>
         {/if}
@@ -427,8 +404,22 @@
           {/if}
         </div>
         <div class="bg-stone-800 px-4">
-          <p class="font-bold text-sm">Adjust:</p>
-          {#each HSL_ADJUSTMENTS.channels as channel, index}
+          <div class="space-x-4">
+            <span class="font-bold">Adjust:</span>
+            {#each ADJUSTMENT_MODES as adjustmentMode, index}
+              <label for={adjustmentMode.label}>
+                <input
+                  type="radio"
+                  name="currentAdjustment"
+                  id={adjustmentMode.label}
+                  value={index}
+                  bind:group={selectedGroup.adjustmentIndex}
+                />
+                {adjustmentMode.label}
+              </label>
+            {/each}
+          </div>
+          {#each ADJUSTMENT_MODES[selectedGroup.adjustmentIndex].channels as channel, index}
             {@render adjuster(channel, index)}
           {/each}
         </div>
