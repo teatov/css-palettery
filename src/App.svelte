@@ -172,9 +172,11 @@
 
   function adjustGroupColors(group: ColorGroup) {
     group.colorItems.forEach((colorItem) => {
-      let color = colorItem.initialColor;
       const adjustmentMode = ADJUSTMENT_MODES[group.adjustmentIndex];
-      const channelValues = adjustmentMode.getChannelValues(color);
+      let color = colorItem.initialColor;
+      const channelValues = adjustmentMode
+        .getChannelValues(color)
+        .map((val) => (Number.isNaN(val) ? 0 : val));
 
       for (const index in adjustmentMode.channels) {
         const adjustmentValue = group.adjustmentValues[index];
@@ -182,7 +184,7 @@
           continue;
         }
 
-        const channel = ADJUSTMENT_MODES[group.adjustmentIndex].channels[index];
+        const channel = adjustmentMode.channels[index];
         const channelValue = channelValues[channel.channelIndex];
         const scale = channel.scale ?? 1;
 

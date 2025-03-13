@@ -22,6 +22,28 @@ export default [
     ],
   },
   {
+    label: 'OKLCH',
+    getChannelValues: (color) => color.oklch(),
+    channels: [
+      {
+        label: 'Lightness',
+        channel: 'oklch.l',
+        channelIndex: 0,
+      },
+      {
+        label: 'Chromacity',
+        channel: 'oklch.c',
+        channelIndex: 1,
+      },
+      {
+        label: 'Hue',
+        channel: 'oklch.h',
+        channelIndex: 2,
+        scale: 180,
+      },
+    ],
+  },
+  {
     label: 'RGB',
     getChannelValues: (color) => color.rgb(),
     channels: [
