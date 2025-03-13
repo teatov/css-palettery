@@ -96,16 +96,20 @@
 
   function newGroup() {
     groupCounter++;
-    const adjustmentIndex = 0;
+    const adjustmentModeIndex = 0;
 
     selectedGroup = {
       name: 'Group ' + groupCounter,
       colorItems: [],
-      adjustmentIndex,
-      adjustmentValues: Array.from({ length: 4 }, () => ({
-        value: 0,
-        enabled: false,
-      })),
+      adjustmentModeIndex,
+      adjustmentValues: Array.from(
+        { length: ADJUSTMENT_MODES.length },
+        (_, i) =>
+          Array.from({ length: ADJUSTMENT_MODES[i].channels.length }, () => ({
+            value: 0,
+            enabled: false,
+          }))
+      ),
     };
     groups.push(selectedGroup);
   }
@@ -172,14 +176,15 @@
 
   function adjustGroupColors(group: ColorGroup) {
     group.colorItems.forEach((colorItem) => {
-      const adjustmentMode = ADJUSTMENT_MODES[group.adjustmentIndex];
+      const adjustmentMode = ADJUSTMENT_MODES[group.adjustmentModeIndex];
       let color = colorItem.initialColor;
       const channelValues = adjustmentMode
         .getChannelValues(color)
         .map((val) => (Number.isNaN(val) ? 0 : val));
 
       for (const index in adjustmentMode.channels) {
-        const adjustmentValue = group.adjustmentValues[index];
+        const adjustmentValue =
+          group.adjustmentValues[group.adjustmentModeIndex][index];
         if (!adjustmentValue.enabled) {
           continue;
         }
@@ -332,7 +337,10 @@
 
   {#snippet adjuster(channel: AdjustmentChannel, index: number)}
     {#if selectedGroup}
-      {@const adjustmentValue = selectedGroup.adjustmentValues[index]}
+      {@const adjustmentValue =
+        selectedGroup.adjustmentValues[selectedGroup.adjustmentModeIndex][
+          index
+        ]}
       <div class="w-full flex items-center justify-between">
         <label
           for={channel.channel}
@@ -415,13 +423,13 @@
                   name="currentAdjustment"
                   id={adjustmentMode.label}
                   value={index}
-                  bind:group={selectedGroup.adjustmentIndex}
+                  bind:group={selectedGroup.adjustmentModeIndex}
                 />
                 {adjustmentMode.label}
               </label>
             {/each}
           </div>
-          {#each ADJUSTMENT_MODES[selectedGroup.adjustmentIndex].channels as channel, index}
+          {#each ADJUSTMENT_MODES[selectedGroup.adjustmentModeIndex].channels as channel, index}
             {@render adjuster(channel, index)}
           {/each}
         </div>

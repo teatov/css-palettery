@@ -53,8 +53,8 @@ type ColorRule = { name: string; sections: ColorSection[] };
 type ColorGroup = {
   name: string;
   colorItems: ColorItem[];
-  adjustmentIndex: number;
-  adjustmentValues: { value: number; enabled: bool }[];
+  adjustmentModeIndex: number;
+  adjustmentValues: { value: number; enabled: bool }[][];
 };
 
 type AdjustmentChannel = {
