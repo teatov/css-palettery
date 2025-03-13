@@ -19,8 +19,8 @@
   let output: string = $state('');
   let ast: css.Stylesheet | undefined = $state();
   let rules: ColorRule[] = $state([]);
-  let groups: ModificationGroup[] = $state([]);
-  let selectedGroup: ModificationGroup | undefined = $state();
+  let groups: AdjustmentGroup[] = $state([]);
+  let selectedGroup: AdjustmentGroup | undefined = $state();
   let copied: boolean = $state(false);
   let groupCounter = 0;
 
@@ -109,7 +109,7 @@
     groups.push(selectedGroup);
   }
 
-  function selectGroup(group: ModificationGroup) {
+  function selectGroup(group: AdjustmentGroup) {
     selectedGroup = group;
   }
 
@@ -169,7 +169,7 @@
     return initialValue;
   }
 
-  function updateGroupColors(group: ModificationGroup) {
+  function updateGroupColors(group: AdjustmentGroup) {
     group.colorItems.forEach((colorItem) => {
       let color = colorItem.initialColor;
       const hsl = color.hsl();
@@ -203,7 +203,7 @@
     });
   }
 
-  function deleteGroup(group: ModificationGroup) {
+  function deleteGroup(group: AdjustmentGroup) {
     if (selectedGroup === group) {
       selectedGroup = undefined;
     }
@@ -335,9 +335,9 @@
     {/each}
   </ul>
 
-  {#snippet modificator(
-    checkboxName: keyof ModificationGroup,
-    valueName: keyof ModificationGroup,
+  {#snippet adjuster(
+    checkboxName: keyof AdjustmentGroup,
+    valueName: keyof AdjustmentGroup,
     label: string,
     scale: number = 1
   )}
@@ -419,13 +419,13 @@
         </div>
         <div class="bg-stone-800 px-4">
           <p class="font-bold text-sm">Adjust:</p>
-          {@render modificator('adjustHue', 'hueAdjustment', 'Hue', 360 / 2)}
-          {@render modificator(
+          {@render adjuster('adjustHue', 'hueAdjustment', 'Hue', 360 / 2)}
+          {@render adjuster(
             'adjustSaturation',
             'saturationAdjustment',
             'Saturation'
           )}
-          {@render modificator(
+          {@render adjuster(
             'adjustLightness',
             'lightnessAdjustment',
             'Lightness'

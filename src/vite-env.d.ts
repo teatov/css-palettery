@@ -43,14 +43,14 @@ type ColorItem = {
   rule: string;
   property: string;
   declaration: css.Declaration;
-  group: ModificationGroup | null;
+  group: AdjustmentGroup | null;
 };
 
 type ColorSection = { name: string | null; colorItems: ColorItem[] };
 
 type ColorRule = { name: string; sections: ColorSection[] };
 
-type ModificationGroup = {
+type AdjustmentGroup = {
   name: string;
   colorItems: ColorItem[];
   adjustHue: boolean;
