@@ -400,7 +400,7 @@
                 {#each adjustmentValues as adjustmentValue, index}
                   {#if adjustmentValue.enabled}
                     {adjustmentMode.channels[index].channel.slice(-1) +
-                      '=' +
+                      ': ' +
                       adjustmentValue.value +
                       ' '}
                   {/if}
