@@ -249,13 +249,14 @@
   <ul class="grid grid-cols-6 text-xs font-mono break-words sm:grid-cols-8">
     {#each colorItems as colorItem}
       <li
-        class="min-h-10 h-full {colorItem.color.hsl()[2] > 0.45 &&
-        colorItem.color.alpha() > 0.75
+        class="min-h-10 h-full {colorItem.color.hsl()[2] > 0.45
           ? 'text-black'
           : 'text-white'} border-2 {showGrouping && colorItem.group
           ? 'border-stone-500'
           : 'border-stone-900'}"
-        style="background-color: {colorItem.declaration.value};"
+        style={colorItem.color.alpha() === 1
+          ? ''
+          : 'background: linear-gradient(to right, black 50%, white 50%);'}
       >
         <button
           title={`${colorItem.property}: ${colorItem.declaration.value}`}
@@ -263,6 +264,9 @@
           colorItem.group
             ? 'cursor-not-allowed'
             : ''}"
+          style="background: {colorItem.color.alpha() === 1
+            ? colorItem.declaration.value
+            : `linear-gradient(to bottom, ${colorItem.declaration.value} 85%, ${colorItem.color.alpha(1).css()} 85%)`};"
           onclick={() => functionOnClick(colorItem)}
         >
           {colorItem.property}
