@@ -99,7 +99,7 @@
     const adjustmentModeIndex = 0;
 
     selectedGroup = {
-      name: 'Group ' + groupCounter,
+      name: String(groupCounter),
       colorItems: [],
       adjustmentModeIndex,
       adjustmentValues: Array.from(
@@ -382,6 +382,10 @@
       <div class="flex justify-between items-start text-nowrap">
         <ul class="flex bg-stone-800 w-full min-h-10 gap-1 overflow-x-auto">
           {#each groups as group}
+            {@const adjustmentMode =
+              ADJUSTMENT_MODES[group.adjustmentModeIndex]}
+            {@const adjustmentValues =
+              group.adjustmentValues[group.adjustmentModeIndex]}
             <li
               class="group flex h-10 bg-stone-700 border-b-2 {selectedGroup ===
               group
@@ -390,8 +394,18 @@
             >
               <button
                 class="p-2 hover:bg-stone-600 focus-visible:bg-stone-600 active:bg-stone-700"
-                onclick={() => selectGroup(group)}>{group.name}</button
+                onclick={() => selectGroup(group)}
               >
+                {group.name} - {adjustmentMode.label}
+                {#each adjustmentValues as adjustmentValue, index}
+                  {#if adjustmentValue.enabled}
+                    {adjustmentMode.channels[index].channel.slice(-1) +
+                      '=' +
+                      adjustmentValue.value +
+                      ' '}
+                  {/if}
+                {/each}
+              </button>
               <button
                 class="p-2 hover:bg-stone-600 focus-visible:bg-stone-600 active:bg-stone-700"
                 onclick={() => deleteGroup(group)}>&#10005;</button
